@@ -45,7 +45,7 @@ Widget::Widget(QWidget *parent)
     QFileInfo fileInfo = infoList.first();
     QMimeDatabase db;
     QMimeType mime = db.mimeTypeForFile(fileInfo);
-    qWarning()<<"mime.name():"<<mime.name()<<fileInfo.absoluteFilePath();
+    qDebug()<<"mime.name():"<<mime.name()<<fileInfo.absoluteFilePath();
     if (mime.name().startsWith("image/")) {
         m_pixmap = new QPixmap(fileInfo.absoluteFilePath());
     } else if (mime.name().startsWith("video/")) {
@@ -93,7 +93,6 @@ void Widget::paintEvent(QPaintEvent *event)
     if (m_pixmap) {
         auto pix = m_pixmap->scaled(this->windowHandle()->screen()->geometry().size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
         auto trueSize = this->windowHandle()->screen()->geometry().size();
-        qDebug()<<"aa:"<<m_pixmap->size()<<pix.size()<<trueSize<<event->rect()<<this->geometry();
 
         if (pix.width() > trueSize.width() || pix.height() > trueSize.height()) {
             pix = pix.copy(QRect(static_cast<int>((pix.width() - trueSize.width()) / 2.0),
@@ -106,7 +105,6 @@ void Widget::paintEvent(QPaintEvent *event)
 
         QPainter pa(this);
         pa.drawPixmap(event->rect().topLeft(), pix, QRectF(QPointF(event->rect().topLeft()) * scale, QSizeF(event->rect().size()) * scale));
-        qDebug()<<"bb:"<<pix.size()<<scale<<trueSize;
     }
 
     return QWidget::paintEvent(event);
