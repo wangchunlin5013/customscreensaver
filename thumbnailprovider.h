@@ -32,7 +32,7 @@ class ThumbnailProvider : public QObject
 public:
     ThumbnailProvider();
 
-    bool createThumbnail(const QFileInfo &info);
+    static bool createThumbnail(const QFileInfo &info);
 
 private:
     static const int m_imageWidth = 480;

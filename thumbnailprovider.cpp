@@ -24,6 +24,8 @@
 #include <QDebug>
 #include <QImage>
 #include <QImageReader>
+#include <QDir>
+#include <libffmpegthumbnailer/videothumbnailer.h>
 
 ThumbnailProvider::ThumbnailProvider()
 {
@@ -36,23 +38,33 @@ bool ThumbnailProvider::createThumbnail(const QFileInfo &info)
     QMimeType mime = db.mimeTypeForFile(info);
     QString mimeTypeName = mime.name();
     QString filePath = info.absoluteFilePath();
-    QString imagePath = "/usr/lib/deepin-screensaver/modules/cover/";
+
+    // 需要sudo权限
+//    QString imagePath = "/usr/lib/deepin-screensaver/modules/cover/";
+    QString imagePath = info.absolutePath();
+
+    if (mimeTypeName.startsWith("video/")) {
+        ffmpegthumbnailer::VideoThumbnailer vt(1920, false, true, 20, false);
+
+        QString savePath = imagePath + "/customscreensaver_temp.png";
+        std::string path(filePath.toUtf8().constData());
+        std::string outputFile(savePath.toUtf8().constData());
+        vt.generateThumbnail(path, ThumbnailerImageTypeEnum::Png, outputFile);
+        filePath = savePath;
+    }
+
     QScopedPointer<QImage> image(new QImage());
 
     // 图片文件缩略图生成示例代码
-    if (mimeTypeName.startsWith("image/")) {
-        QString suffix = mimeTypeName.replace("image/", "");
+    if (mimeTypeName.startsWith("image/") || mimeTypeName.startsWith("video/")) {
 
-        QImageReader reader(filePath, suffix.toLatin1());
+        QImageReader reader(filePath);
         if (!reader.canRead()) {
             QString errorString = reader.errorString();
             qDebug()<<"Error:image can not read,and:"<<errorString;
             return false;
         }
-        const QSize &imageSize = reader.size();
-        if (imageSize.width() > m_imageWidth || imageSize.height() > m_imageHeight || mime.name() == "image/svg+xml") {
-            reader.setScaledSize(reader.size().scaled(m_imageWidth, m_imageHeight, Qt::KeepAspectRatio));
-        }
+        reader.setScaledSize(reader.size().scaled(m_imageWidth, m_imageHeight, Qt::IgnoreAspectRatio));
         reader.setAutoTransform(true);
 
         if (!reader.read(image.data())) {
@@ -61,16 +73,23 @@ bool ThumbnailProvider::createThumbnail(const QFileInfo &info)
             return false;
         }
 
-        if (image->width() > m_imageWidth || image->height() > m_imageHeight) {
-            image->operator =(image->scaled(m_imageWidth, m_imageHeight, Qt::KeepAspectRatio));
-        }
-        QString savePath = imagePath+"customscreensaver@3x.png";
+        image->operator =(image->scaled(m_imageWidth, m_imageHeight, Qt::IgnoreAspectRatio));
+        QString savePath = imagePath + "/customscreensaver@3x.png";
         if (!image->save(savePath, Q_NULLPTR, 80)) {
             QString errorString = QStringLiteral("Can not save image to ") + savePath;
             return false;
         }
-    }
+        savePath = imagePath + "/customscreensaver@2x.png";
+        image->scaledToHeight(200, Qt::SmoothTransformation).save(savePath);
+        savePath = imagePath + "/customscreensaver.png";
+        image->scaledToHeight(100, Qt::SmoothTransformation).save(savePath);
 
+        if (mimeTypeName.startsWith("video/")) {
+            // 删除临时文件
+            QDir dir;
+            dir.remove(filePath);
+        }
+    }
 
     return true;
 }

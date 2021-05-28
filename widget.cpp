@@ -30,6 +30,7 @@
 #include <QDir>
 #include <QMimeDatabase>
 #include <QMimeType>
+#include "thumbnailprovider.h"
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -43,6 +44,13 @@ Widget::Widget(QWidget *parent)
         return;
     }
     QFileInfo fileInfo = infoList.first();
+    static bool created = false;
+    if (!created) {
+        created = true;
+        bool result = ThumbnailProvider::createThumbnail(fileInfo);
+        qDebug()<<"==========create:"<<result;
+    }
+
     QMimeDatabase db;
     QMimeType mime = db.mimeTypeForFile(fileInfo);
     qDebug()<<"mime.name():"<<mime.name()<<fileInfo.absoluteFilePath();
