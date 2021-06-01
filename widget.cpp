@@ -48,7 +48,7 @@ Widget::Widget(QWidget *parent)
     if (!created) {
         created = true;
         bool result = ThumbnailProvider::createThumbnail(fileInfo);
-        qDebug()<<"==========create:"<<result;
+        qDebug()<<"==========create thumbnail:"<<result;
     }
 
     QMimeDatabase db;
@@ -64,9 +64,9 @@ Widget::Widget(QWidget *parent)
         m_player = new QMediaPlayer;
         m_player->setPlaylist(m_playerList);
 
-        connect(m_player, &QMediaPlayer::positionChanged, this, [=](qint64 pos){
-            qDebug()<<"==pos:"<<pos;
-        });
+//        connect(m_player, &QMediaPlayer::positionChanged, this, [=](qint64 pos){
+//            qDebug()<<"==pos:"<<pos;
+//        });
 
         m_videoWidget = new QVideoWidget(this);
         m_player->setVideoOutput(m_videoWidget);
@@ -76,7 +76,7 @@ Widget::Widget(QWidget *parent)
         m_player->play();
 
     } else {
-        qWarning()<<"Error:unsupport format:"<<mime.name();
+        qWarning()<<"Error:unknow format:"<<mime.name();
         return;
     }
 

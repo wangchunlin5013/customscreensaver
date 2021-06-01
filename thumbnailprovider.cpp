@@ -25,6 +25,7 @@
 #include <QImage>
 #include <QImageReader>
 #include <QDir>
+#include <QStandardPaths>
 #include <libffmpegthumbnailer/videothumbnailer.h>
 
 ThumbnailProvider::ThumbnailProvider()
@@ -39,14 +40,12 @@ bool ThumbnailProvider::createThumbnail(const QFileInfo &info)
     QString mimeTypeName = mime.name();
     QString filePath = info.absoluteFilePath();
 
-    // 需要sudo权限
-//    QString imagePath = "/usr/lib/deepin-screensaver/modules/cover/";
-    QString imagePath = info.absolutePath();
+    QString imagePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first() + "/.config/deepin/deepin-screensaver/cover/";
 
     if (mimeTypeName.startsWith("video/")) {
         ffmpegthumbnailer::VideoThumbnailer vt(1920, false, true, 20, false);
 
-        QString savePath = imagePath + "/customscreensaver_temp.png";
+        QString savePath = imagePath + "customscreensaver_temp.png";
         std::string path(filePath.toUtf8().constData());
         std::string outputFile(savePath.toUtf8().constData());
         vt.generateThumbnail(path, ThumbnailerImageTypeEnum::Png, outputFile);
@@ -55,7 +54,7 @@ bool ThumbnailProvider::createThumbnail(const QFileInfo &info)
 
     QScopedPointer<QImage> image(new QImage());
 
-    // 图片文件缩略图生成示例代码
+    // 读取图片文件生成缩略图
     if (mimeTypeName.startsWith("image/") || mimeTypeName.startsWith("video/")) {
 
         QImageReader reader(filePath);
@@ -74,14 +73,14 @@ bool ThumbnailProvider::createThumbnail(const QFileInfo &info)
         }
 
         image->operator =(image->scaled(m_imageWidth, m_imageHeight, Qt::IgnoreAspectRatio));
-        QString savePath = imagePath + "/customscreensaver@3x.png";
+        QString savePath = imagePath + "customscreensaver@3x.png";
         if (!image->save(savePath, Q_NULLPTR, 80)) {
             QString errorString = QStringLiteral("Can not save image to ") + savePath;
             return false;
         }
-        savePath = imagePath + "/customscreensaver@2x.png";
+        savePath = imagePath + "customscreensaver@2x.png";
         image->scaledToHeight(200, Qt::SmoothTransformation).save(savePath);
-        savePath = imagePath + "/customscreensaver.png";
+        savePath = imagePath + "customscreensaver.png";
         image->scaledToHeight(100, Qt::SmoothTransformation).save(savePath);
 
         if (mimeTypeName.startsWith("video/")) {
