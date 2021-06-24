@@ -35,7 +35,7 @@
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
-    QString path = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first() + "/.config/deepin/deepin-screensaver/customscreensaver/";
+    QString path = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first() + "/.config/deepin/deepin-screensaver/deepin-autonomic-screensaver/";
     QDir dir(path);
     QDir::Filters filters = QDir::Files | QDir::NoDotAndDotDot | QDir::Readable;
     QFileInfoList infoList = dir.entryInfoList(filters);

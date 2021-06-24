@@ -45,7 +45,7 @@ bool ThumbnailProvider::createThumbnail(const QFileInfo &info)
     if (mimeTypeName.startsWith("video/")) {
         ffmpegthumbnailer::VideoThumbnailer vt(1920, false, true, 20, false);
 
-        QString savePath = imagePath + "customscreensaver_temp.png";
+        QString savePath = imagePath + "deepin-autonomic-screensaver_temp.png";
         std::string path(filePath.toUtf8().constData());
         std::string outputFile(savePath.toUtf8().constData());
         vt.generateThumbnail(path, ThumbnailerImageTypeEnum::Png, outputFile);
@@ -73,14 +73,15 @@ bool ThumbnailProvider::createThumbnail(const QFileInfo &info)
         }
 
         image->operator =(image->scaled(m_imageWidth, m_imageHeight, Qt::IgnoreAspectRatio));
-        QString savePath = imagePath + "customscreensaver@3x.png";
+        QString savePath = imagePath + "deepin-autonomic-screensaver@3x.png";
         if (!image->save(savePath, Q_NULLPTR, 80)) {
             QString errorString = QStringLiteral("Can not save image to ") + savePath;
+            qDebug()<<errorString;
             return false;
         }
-        savePath = imagePath + "customscreensaver@2x.png";
+        savePath = imagePath + "deepin-autonomic-screensaver@2x.png";
         image->scaledToHeight(200, Qt::SmoothTransformation).save(savePath);
-        savePath = imagePath + "customscreensaver.png";
+        savePath = imagePath + "deepin-autonomic-screensaver.png";
         image->scaledToHeight(100, Qt::SmoothTransformation).save(savePath);
 
         if (mimeTypeName.startsWith("video/")) {
